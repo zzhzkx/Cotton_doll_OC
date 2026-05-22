@@ -1,0 +1,66 @@
+.doll-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  background: var(--color-card);
+  border-radius: var(--radius-lg);
+  padding: var(--space-lg);
+  text-decoration: none;
+  color: inherit;
+  box-shadow: var(--shadow-sm);
+  transition: all var(--transition-normal);
+  cursor: pointer;
+}
+
+.doll-card:hover {
+  box-shadow: var(--shadow-lg);
+  transform: translateY(-4px);
+}
+
+.doll-card-avatar {
+  width: 100px;
+  height: 100px;
+  border-radius: 50%;
+  overflow: hidden;
+  margin-bottom: var(--space-md);
+  border: 3px solid var(--color-primary-light);
+  background: var(--color-bg);
+}
+
+.doll-card-avatar img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.avatar-placeholder {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, var(--color-primary-light), var(--color-secondary-light));
+  font-size: 36px;
+  font-weight: 700;
+  color: var(--color-heading);
+}
+
+.doll-card-info {
+  text-align: center;
+  width: 100%;
+}
+
+.doll-card-name {
+  font-size: 18px;
+  margin-bottom: var(--space-xs);
+  color: var(--color-heading);
+}
+
+.doll-card-bio {
+  font-size: 14px;
+  color: var(--color-muted);
+  line-height: 1.4;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}

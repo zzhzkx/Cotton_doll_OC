@@ -1,0 +1,46 @@
+:root {
+  /* 配色 */
+  --color-primary: #FFB5C2;
+  --color-primary-dark: #E8899A;
+  --color-primary-light: #FFD6DE;
+  --color-secondary: #C5A3FF;
+  --color-secondary-light: #DFD0FF;
+  --color-bg: #FFF8F0;
+  --color-card: #FFFFFF;
+  --color-text: #5D4E42;
+  --color-heading: #3D2B1F;
+  --color-accent: #A8E6CF;
+  --color-accent-dark: #7ECBA4;
+  --color-warning: #FFB347;
+  --color-danger: #FF7B7B;
+  --color-border: #F0E4D8;
+  --color-muted: #B8A99A;
+
+  /* 字体 */
+  --font-heading: 'Noto Sans SC', 'PingFang SC', 'Microsoft YaHei', sans-serif;
+  --font-body: 'Noto Sans SC', 'PingFang SC', 'Microsoft YaHei', sans-serif;
+
+  /* 圆角 */
+  --radius-sm: 8px;
+  --radius-md: 12px;
+  --radius-lg: 16px;
+  --radius-xl: 24px;
+  --radius-full: 9999px;
+
+  /* 阴影 */
+  --shadow-sm: 0 2px 8px rgba(255, 181, 194, 0.2);
+  --shadow-md: 0 4px 12px rgba(255, 181, 194, 0.3);
+  --shadow-lg: 0 8px 24px rgba(255, 181, 194, 0.35);
+
+  /* 间距 */
+  --space-xs: 4px;
+  --space-sm: 8px;
+  --space-md: 16px;
+  --space-lg: 24px;
+  --space-xl: 32px;
+  --space-2xl: 48px;
+
+  /* 动画 */
+  --transition-fast: 0.15s ease;
+  --transition-normal: 0.3s ease-out;
+}

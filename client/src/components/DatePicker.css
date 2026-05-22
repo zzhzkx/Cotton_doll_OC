@@ -1,0 +1,225 @@
+.date-picker {
+  position: relative;
+  width: 100%;
+}
+
+.date-picker-input {
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+  padding: 10px 14px;
+  border: 2px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  background: var(--color-card);
+  cursor: pointer;
+  transition: all var(--transition-fast);
+  min-height: 44px;
+  font-size: 15px;
+}
+
+.date-picker-input:hover {
+  border-color: var(--color-primary-light);
+}
+
+.date-picker-input.active {
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 3px rgba(255, 181, 194, 0.15);
+}
+
+.date-picker-input.placeholder {
+  color: var(--color-muted);
+}
+
+.date-icon {
+  color: var(--color-primary);
+  flex-shrink: 0;
+}
+
+/* 日历弹出面板 */
+.date-picker-dropdown {
+  position: absolute;
+  top: calc(100% + 8px);
+  left: 0;
+  z-index: 200;
+  background: var(--color-card);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-lg);
+  border: 1px solid var(--color-border);
+  padding: var(--space-md);
+  width: 300px;
+  user-select: none;
+}
+
+/* 头部导航 */
+.picker-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: var(--space-md);
+}
+
+.picker-title {
+  font-weight: 600;
+  font-size: 15px;
+  color: var(--color-heading);
+  min-width: 100px;
+  text-align: center;
+}
+
+.picker-title .clickable {
+  cursor: pointer;
+  padding: 2px 6px;
+  border-radius: var(--radius-sm);
+  transition: all var(--transition-fast);
+}
+
+.picker-title .clickable:hover {
+  background: var(--color-primary-light);
+  color: var(--color-primary-dark);
+}
+
+/* 年/月选择网格 */
+.picker-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 6px;
+}
+
+.grid-btn {
+  height: 42px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: var(--radius-md);
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  font-size: 14px;
+  color: var(--color-text);
+  transition: all var(--transition-fast);
+}
+
+.grid-btn:hover {
+  background: var(--color-primary-light);
+}
+
+.grid-btn.today {
+  font-weight: 700;
+  color: var(--color-primary-dark);
+  background: rgba(255, 181, 194, 0.15);
+}
+
+.grid-btn.selected {
+  background: var(--color-primary);
+  color: white;
+  font-weight: 600;
+  box-shadow: 0 2px 8px rgba(255, 181, 194, 0.4);
+}
+
+.grid-btn.selected:hover {
+  background: var(--color-primary-dark);
+}
+
+.nav-btn {
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: var(--radius-sm);
+  background: transparent;
+  color: var(--color-text);
+  font-size: 16px;
+  cursor: pointer;
+  transition: all var(--transition-fast);
+}
+
+.nav-btn:hover {
+  background: var(--color-primary-light);
+  color: var(--color-primary-dark);
+}
+
+/* 星期行 */
+.picker-weekdays {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 2px;
+  margin-bottom: var(--space-xs);
+}
+
+.weekday {
+  text-align: center;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--color-muted);
+  padding: var(--space-xs);
+}
+
+/* 日期格子 */
+.picker-days {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 2px;
+}
+
+.day-btn {
+  width: 36px;
+  height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: var(--radius-md);
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  font-size: 14px;
+  color: var(--color-text);
+  transition: all var(--transition-fast);
+  margin: 0 auto;
+}
+
+.day-btn:hover:not(:disabled) {
+  background: var(--color-primary-light);
+}
+
+.day-btn.other-month {
+  color: var(--color-muted);
+  opacity: 0.4;
+  cursor: default;
+}
+
+.day-btn.today {
+  font-weight: 700;
+  color: var(--color-primary-dark);
+  background: rgba(255, 181, 194, 0.15);
+}
+
+.day-btn.selected {
+  background: var(--color-primary);
+  color: white;
+  font-weight: 600;
+  box-shadow: 0 2px 8px rgba(255, 181, 194, 0.4);
+}
+
+.day-btn.selected:hover {
+  background: var(--color-primary-dark);
+}
+
+/* 清除按钮 */
+.clear-btn {
+  width: 100%;
+  margin-top: var(--space-sm);
+  padding: var(--space-xs);
+  background: transparent;
+  border: none;
+  color: var(--color-muted);
+  font-size: 13px;
+  cursor: pointer;
+  border-radius: var(--radius-sm);
+  transition: all var(--transition-fast);
+}
+
+.clear-btn:hover {
+  background: #FFE5E5;
+  color: var(--color-danger);
+}

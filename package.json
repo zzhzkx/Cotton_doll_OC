@@ -1,0 +1,10 @@
+{
+  "name": "cotton-doll-oc",
+  "version": "1.0.0",
+  "description": "棉花娃娃 OC 管理网站",
+  "scripts": {
+    "server": "cd server && npm run dev",
+    "client": "cd client && npm run dev",
+    "start": "echo '请在两个终端中分别运行: npm run server 和 npm run client'"
+  }
+}
