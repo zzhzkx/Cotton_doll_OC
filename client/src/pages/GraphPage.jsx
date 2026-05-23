@@ -3,7 +3,6 @@ import { useNavigate } from 'react-router-dom';
 import ForceGraph2D from 'react-force-graph-2d';
 import { relationships } from '../api';
 import useForceEngine from '../hooks/useForceEngine';
-import useClusterDrag from '../hooks/useClusterDrag';
 import useGraphRenderer from '../hooks/useGraphRenderer';
 import GraphToolbar from '../components/GraphToolbar';
 import SettingsPanel from '../components/SettingsPanel';
@@ -20,32 +19,58 @@ export default function GraphPage() {
   const [showSettings, setShowSettings] = useState(false);
   const avatarCache = useRef({});
 
-  // 创建模式状态
+  // 创建模式
   const [createMode, setCreateMode] = useState(false);
   const [relStep, setRelStep] = useState(0);
   const [relNodeA, setRelNodeA] = useState(null);
   const [relNodeB, setRelNodeB] = useState(null);
 
-  // 弹窗状态
+  // 弹窗
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [showEditModal, setShowEditModal] = useState(false);
   const [selectedRel, setSelectedRel] = useState(null);
   const [editType, setEditType] = useState('');
 
-  // --- 力系统 hook ---
-  const { graphRef, settings, setSettings, handleEngineInit, reheat, handleDragStart, handleDragMove, handleDragEnd } = useForceEngine(graphData);
+  // 高亮状态
+  const [highlightNodes, setHighlightNodes] = useState(new Set());
+  const [highlightLinks, setHighlightLinks] = useState(new Set());
+  const [hoverNode, setHoverNode] = useState(null);
 
-  // --- 拖拽 hook ---
+  // --- 力系统 hook ---
   const {
-    highlightNodes, highlightLinks, hoverNode, setHoverNode,
-    updateHighlight, handleNodeDrag, handleNodeDragEnd: clusterDragEnd,
-    setHighlightNodes, setHighlightLinks,
-  } = useClusterDrag(graphData, reheat);
+    graphRef, settings, setSettings,
+    handleEngineInit, reheat,
+    handleDragStart, handleDragMove, handleDragEnd,
+  } = useForceEngine(graphData);
 
   // --- 渲染 hook ---
   const { nodeCanvasObject, linkCanvasObject, handleZoom } = useGraphRenderer(
     settings, highlightNodes, highlightLinks, hoverNode, avatarCache
   );
+
+  // --- 高亮逻辑 ---
+  const updateHighlight = useCallback((node) => {
+    if (!node) {
+      setHighlightNodes(new Set());
+      setHighlightLinks(new Set());
+      setHoverNode(null);
+      return;
+    }
+    const newNodes = new Set([node.id]);
+    const newLinks = new Set();
+    graphData.links.forEach(link => {
+      const s = typeof link.source === 'object' ? link.source.id : link.source;
+      const t = typeof link.target === 'object' ? link.target.id : link.target;
+      if (s === node.id || t === node.id) {
+        newLinks.add(link.id);
+        newNodes.add(s);
+        newNodes.add(t);
+      }
+    });
+    setHighlightNodes(newNodes);
+    setHighlightLinks(newLinks);
+    setHoverNode(node.id);
+  }, [graphData.links]);
 
   // --- 数据加载 ---
   const loadGraph = useCallback(async () => {
@@ -60,12 +85,13 @@ export default function GraphPage() {
           avatarCache.current[d.id] = img;
         }
       });
-      const nodes = data.dolls.map(d => ({ id: d.id, name: d.name, avatar: d.avatar, bio: d.bio }));
-      const links = data.relationships.map(r => ({
-        id: r.id, source: r.from_doll, target: r.to_doll,
-        type: r.type, from_name: r.from_name, to_name: r.to_name,
-      }));
-      setGraphData({ nodes, links });
+      setGraphData({
+        nodes: data.dolls.map(d => ({ id: d.id, name: d.name, avatar: d.avatar, bio: d.bio })),
+        links: data.relationships.map(r => ({
+          id: r.id, source: r.from_doll, target: r.to_doll,
+          type: r.type, from_name: r.from_name, to_name: r.to_name,
+        })),
+      });
     } catch (err) {
       console.error('加载图谱失败:', err);
     } finally {
@@ -75,28 +101,19 @@ export default function GraphPage() {
 
   useEffect(() => { loadGraph(); }, [loadGraph]);
 
-  // 拖拽结束：触发落位 + 退让
-  const onNodeDragEnd = useCallback((node) => {
-    clusterDragEnd(); // 清理拖拽状态
-    handleDragEnd(node.id, node.x, node.y); // 落位到最近 hex 槽 + 退让
-  }, [clusterDragEnd, handleDragEnd]);
-
-  // --- 交互：节点点击 ---
+  // --- 交互 ---
   const handleNodeClick = useCallback((node, event) => {
     event?.stopPropagation();
     if (createMode) {
       if (relStep === 0) {
-        // 选 A：只标记 A，不暗淡其他节点
         setRelNodeA(node);
         setRelStep(1);
-        setHighlightNodes(new Set()); // 清空 → 渲染器不暗淡任何节点
-        setHighlightLinks(new Set());
+        setHighlightNodes(new Set());
         setHoverNode(node.id);
       } else if (relStep === 1 && node.id !== relNodeA?.id) {
-        // 选 B：标记 A 和 B
         setRelNodeB(node);
         setRelStep(2);
-        setHighlightNodes(new Set()); // 保持不暗淡
+        setHighlightNodes(new Set());
         setHoverNode(node.id);
       }
     } else {
@@ -106,39 +123,29 @@ export default function GraphPage() {
         updateHighlight(node);
       }
     }
-  }, [createMode, relStep, relNodeA, hoverNode, updateHighlight, setHighlightNodes]);
+  }, [createMode, relStep, relNodeA, hoverNode, updateHighlight]);
 
-  // --- 交互：点击空白 ---
   const handleBackgroundClick = useCallback(() => {
-    if (createMode && relStep > 0) {
-      setRelStep(0); setRelNodeA(null); setRelNodeB(null);
-      updateHighlight(null);
-    } else {
-      updateHighlight(null);
-    }
-  }, [createMode, relStep, updateHighlight]);
+    updateHighlight(null);
+  }, [updateHighlight]);
 
-  // --- 交互：点击连线 ---
   const handleLinkClick = useCallback((link) => {
     setSelectedRel(link);
     setEditType(link.type);
     setShowEditModal(true);
   }, []);
 
-  // --- 自动适配视图 ---
   const handleFitView = useCallback(() => {
     graphRef.current?.zoomToFit(600, 120);
   }, [graphRef]);
 
-  // --- 创建模式切换 ---
   const toggleCreateMode = useCallback(() => {
     setCreateMode(prev => {
-      if (prev) { setRelStep(0); setRelNodeA(null); setRelNodeB(null); updateHighlight(null); }
+      if (prev) { setRelStep(0); setRelNodeA(null); setRelNodeB(null); }
       return !prev;
     });
-  }, [updateHighlight]);
+  }, []);
 
-  // --- 确认创建关系（图谱上点击） ---
   const confirmRel = useCallback(async (type) => {
     if (!relNodeA || !relNodeB) return;
     try {
@@ -149,7 +156,6 @@ export default function GraphPage() {
     } catch (err) { alert(err.message); }
   }, [relNodeA, relNodeB, loadGraph, updateHighlight]);
 
-  // --- 手动创建关系 ---
   const handleManualCreate = useCallback(async (data) => {
     try {
       await relationships.create(data);
@@ -158,7 +164,6 @@ export default function GraphPage() {
     } catch (err) { alert(err.message); }
   }, [loadGraph]);
 
-  // --- 编辑/删除关系 ---
   const handleEditRel = useCallback(async () => {
     if (!selectedRel || !editType) return;
     try {
@@ -177,8 +182,22 @@ export default function GraphPage() {
     } catch (err) { alert(err.message); }
   }, [selectedRel, loadGraph]);
 
-  // 高亮节点名
-  const highlightNodeName = hoverNode && !createMode ? allDolls.find(d => d.id === hoverNode)?.name : null;
+  // 拖拽
+  const isDraggingRef = useRef(false);
+  const onNodeDragStart = useCallback((node) => {
+    isDraggingRef.current = true;
+    handleDragStart(node.id);
+  }, [handleDragStart]);
+  const onNodeDrag = useCallback((node) => {
+    if (isDraggingRef.current) handleDragMove(node.id, node.x, node.y);
+  }, [handleDragMove]);
+  const onNodeDragEnd = useCallback((node) => {
+    isDraggingRef.current = false;
+    handleDragEnd(node.id, node.x, node.y);
+  }, [handleDragEnd]);
+
+  const highlightNodeName = hoverNode && !createMode
+    ? allDolls.find(d => d.id === hoverNode)?.name : null;
 
   if (loading) return <div className="container" style={{ paddingTop: '40px' }}>加载中...</div>;
 
@@ -192,20 +211,15 @@ export default function GraphPage() {
         toggleCreateMode={toggleCreateMode}
         onManualCreate={() => setShowCreateModal(true)}
       />
-
       {showSettings && <SettingsPanel settings={settings} setSettings={setSettings} />}
-
       <ModeBanner
-        createMode={createMode}
-        relStep={relStep}
-        relNodeA={relNodeA}
-        relNodeB={relNodeB}
+        createMode={createMode} relStep={relStep}
+        relNodeA={relNodeA} relNodeB={relNodeB}
         onConfirmRel={confirmRel}
         highlightNodeName={highlightNodeName}
         onClearHighlight={() => updateHighlight(null)}
         allDolls={allDolls}
       />
-
       <div className="graph-container">
         {graphData.nodes.length === 0 ? (
           <div className="graph-empty">
@@ -220,7 +234,8 @@ export default function GraphPage() {
             nodeCanvasObject={nodeCanvasObject}
             linkCanvasObject={linkCanvasObject}
             onNodeClick={handleNodeClick}
-            onNodeDrag={handleNodeDrag}
+            onNodeDragStart={onNodeDragStart}
+            onNodeDrag={onNodeDrag}
             onNodeDragEnd={onNodeDragEnd}
             onLinkClick={handleLinkClick}
             onBackgroundClick={handleBackgroundClick}
@@ -239,24 +254,14 @@ export default function GraphPage() {
           />
         )}
       </div>
-
       {showCreateModal && (
-        <CreateRelModal
-          allDolls={allDolls}
-          onSubmit={handleManualCreate}
-          onClose={() => setShowCreateModal(false)}
-        />
+        <CreateRelModal allDolls={allDolls} onSubmit={handleManualCreate}
+          onClose={() => setShowCreateModal(false)} />
       )}
-
       {showEditModal && (
-        <EditRelModal
-          selectedRel={selectedRel}
-          editType={editType}
-          setEditType={setEditType}
-          onSave={handleEditRel}
-          onDelete={handleDeleteRel}
-          onClose={() => setShowEditModal(false)}
-        />
+        <EditRelModal selectedRel={selectedRel} editType={editType} setEditType={setEditType}
+          onSave={handleEditRel} onDelete={handleDeleteRel}
+          onClose={() => setShowEditModal(false)} />
       )}
     </div>
   );
