@@ -1,0 +1,54 @@
+.settings-panel {
+  position: absolute;
+  top: 64px;
+  right: 16px;
+  z-index: 50;
+  background: var(--color-card);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-lg);
+  border: 1px solid var(--color-border);
+  width: 300px;
+  max-height: calc(100vh - 140px);
+  overflow-y: auto;
+  padding: var(--space-md);
+}
+.settings-section { margin-bottom: var(--space-md); }
+.settings-section:last-child { margin-bottom: 0; }
+.settings-section-title {
+  font-size: 13px; font-weight: 600; color: var(--color-muted);
+  text-transform: uppercase; letter-spacing: 1px;
+  margin-bottom: var(--space-sm); padding-bottom: var(--space-xs);
+  border-bottom: 1px solid var(--color-border);
+}
+.settings-row {
+  display: flex; align-items: center; gap: var(--space-sm); margin-bottom: var(--space-sm);
+}
+.settings-label { font-size: 13px; color: var(--color-heading); min-width: 70px; flex-shrink: 0; }
+.settings-slider {
+  flex: 1; height: 4px;
+  -webkit-appearance: none; appearance: none;
+  background: var(--color-primary-light); border-radius: var(--radius-full);
+  outline: none; border: none; padding: 0; cursor: pointer;
+}
+.settings-slider::-webkit-slider-thumb {
+  -webkit-appearance: none; appearance: none;
+  width: 14px; height: 14px; border-radius: 50%;
+  background: var(--color-primary); border: 2px solid white;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.15); cursor: pointer;
+}
+.settings-slider::-moz-range-thumb {
+  width: 14px; height: 14px; border-radius: 50%;
+  background: var(--color-primary); border: 2px solid white; cursor: pointer;
+}
+.settings-value {
+  font-size: 12px; color: var(--color-muted); min-width: 36px;
+  text-align: right; font-variant-numeric: tabular-nums;
+}
+.toggle-btn {
+  padding: 3px 14px; border-radius: var(--radius-xl);
+  font-size: 12px; font-weight: 500; cursor: pointer;
+  transition: all var(--transition-fast);
+  border: 2px solid var(--color-border); background: var(--color-card); color: var(--color-text);
+}
+.toggle-btn.on { background: var(--color-primary); border-color: var(--color-primary); color: white; }
+.toggle-btn:hover { border-color: var(--color-primary); }
